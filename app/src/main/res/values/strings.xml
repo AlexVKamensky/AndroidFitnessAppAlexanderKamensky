@@ -3,6 +3,6 @@
     <string name="title_activity_record_workout">RecordWorkoutActivity</string>
     <string name="title_activity_profile">ProfileActivity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="record_workout_title_text">Record Workout</string>
+    <string name="record_workout_start_button_text">Star Workout</string>
 </resources>
