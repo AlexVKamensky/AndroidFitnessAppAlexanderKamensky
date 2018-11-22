@@ -9,9 +9,9 @@
 -- **Email**: david.barban@sjsu.edu
 -- **Student ID**: 007812909
 
-- **Name**: John Doe
--- **Email**: john.doe@sjsu.edu
--- **Student ID**: 12345678
+- **Name**: Alexander Kamensky
+-- **Email**: alexander.kamensky@sjsu.edu
+-- **Student ID**: 009779614
 
 - **Name**: John Doe
 -- **Email**: john.doe@sjsu.edu
