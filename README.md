@@ -6,7 +6,7 @@
 ## Team Information
 
 - **Name**: David Barban
--- **Email**: david.barban@sjsu.edy
+-- **Email**: david.barban@sjsu.edu
 -- **Student ID**: 007812909
 
 - **Name**: John Doe
