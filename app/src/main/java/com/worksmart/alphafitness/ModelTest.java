@@ -1,4 +1,6 @@
 package com.worksmart.alphafitness;
+import android.app.Activity;
+import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -7,21 +9,20 @@ public class ModelTest {
 
     static Boolean NewDatabase = false;
 
-    public static void testModel(DBHelper database){
-        if(NewDatabase == true){
-            database.clearDB();
+    public static void testModel( Activity context){
+        AlphaFtinessModel model = new AlphaFtinessModel(context);
+        model.getProfile();
+        if(model.profile.getName() == ""){
+            model.profile = new UserProfile();
+            model.profile = new UserProfile();
+            model.profile.setName("John Smith");
+            model.profile.setGender(UserProfile.Gender.MALE);
+            model.addUserProfile();
         }
-        UserProfile testProfile = database.getUserProfile();
-        if(testProfile == null){
-            testProfile = new UserProfile();
-            testProfile.setName("John Smith");
-            testProfile.setGender(UserProfile.Gender.MALE);
-            database.addUserProfile(testProfile);
-        }
-        Log.d("ModelTest", "The users name is " + testProfile.getName());
-        Log.d("ModelTest", "The users gender is " + testProfile.getGender());
-        Log.d("ModelTest", "The users weight is " + testProfile.getWeight());
-        ArrayList<Workout> workouts = database.getWorkOuts();
+        Log.d("ModelTest", "The users name is " + model.profile.getName());
+        Log.d("ModelTest", "The users gender is " + model.profile.getGender());
+        Log.d("ModelTest", "The users weight is " + model.profile.getWeight());
+        ArrayList<Workout> workouts = model.getWorkouts();
         if(workouts.isEmpty()) {
             Workout testWorkout = new Workout(1);
             testWorkout.setDistance(1.2);
@@ -32,14 +33,14 @@ public class ModelTest {
             Log.d("ModelTest", "The time of the workout is " + testWorkout.getTime());
             Log.d("ModelTest", "The week is " + testWorkout.getWeek());
 
-            testProfile.workouts.add(testWorkout);
+            model.profile.workouts.add(testWorkout);
 
             for (int i = 0; i < 4; i++) {
                 Workout newWorkout = new Workout(1);
                 newWorkout.setDistance(1.0);
                 newWorkout.setTotalCalories(200);
                 newWorkout.setTime(10);
-                testProfile.workouts.add(newWorkout);
+                model.profile.workouts.add(newWorkout);
             }
 
             testWorkout = new Workout(0);
@@ -47,31 +48,31 @@ public class ModelTest {
             testWorkout.setTotalCalories(500);
             testWorkout.setDistance(12);
 
-            testProfile.workouts.add(testWorkout);
-            testProfile.printWorkouts("ModelTest2");
-            testProfile.calculateValues(1);
+            model.profile.workouts.add(testWorkout);
+            model.profile.printWorkouts("ModelTest2");
+            model.profile.calculateValues(1);
 
-            Log.d("ModelTest", "The number of workouts this week is " + testProfile.weekWorkoutCount);
-            Log.d("ModelTest", "The average distance this week is " + testProfile.avgDistance);
-            Log.d("ModelTest", "The average time this week is " + testProfile.avgTime);
-            Log.d("ModelTest", "The average calories this week is " + testProfile.avgCalories);
+            Log.d("ModelTest", "The number of workouts this week is " + model.profile.weekWorkoutCount);
+            Log.d("ModelTest", "The average distance this week is " + model.profile.avgDistance);
+            Log.d("ModelTest", "The average time this week is " + model.profile.avgTime);
+            Log.d("ModelTest", "The average calories this week is " + model.profile.avgCalories);
 
 
-            Log.d("ModelTest", "The total number of workouts is " + testProfile.totalWorkoutCount);
-            Log.d("ModelTest", "The total distance is " + testProfile.totalDistance);
-            Log.d("ModelTest", "The total time is " + testProfile.totalTime);
-            Log.d("ModelTest", "The total Calorie count is " + testProfile.totalCalories);
+            Log.d("ModelTest", "The total number of workouts is " + model.profile.totalWorkoutCount);
+            Log.d("ModelTest", "The total distance is " + model.profile.totalDistance);
+            Log.d("ModelTest", "The total time is " + model.profile.totalTime);
+            Log.d("ModelTest", "The total Calorie count is " + model.profile.totalCalories);
 
-            Log.d("ModelTest", "Database is " + database.toString());
-            for (Workout workout : testProfile.workouts) {
-                database.addWorkOut(workout);
+            for (Workout workout : model.profile.workouts) {
+                model.addWorkout(workout);
             }
 
-            testProfile.printWorkouts("ModetTest3");
+            model.profile.printWorkouts("ModelTest3");
+
         }
         else{
-            testProfile.workouts = workouts;
-            testProfile.printWorkouts("ModelTest3");
+            model.profile.workouts = workouts;
+            model.profile.printWorkouts("ModelTestDB");
         }
 
         //Workout dbWorkout = database.getWorkOut(0);
