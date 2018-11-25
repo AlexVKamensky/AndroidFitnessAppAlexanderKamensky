@@ -25,6 +25,8 @@ public class DataProvider extends ContentProvider {
     static final Uri USERPROFILE_URI = Uri.parse(USERPROFILE_URL);
     static final String WORKOUT_URL = "content://" + PROVIDER_NAME + "/workouts";
     static final Uri WORKOUT_URI = Uri.parse(WORKOUT_URL);
+    static final String DETAILS_URL = "content://" + PROVIDER_NAME + "/details";
+    static final Uri DETAILS_URI = Uri.parse(DETAILS_URL);
 
     static final String KEY_USERPROFILE_ID = "_id";
     static final String KEY_USERPROFILE_NAME = "name";
@@ -37,9 +39,17 @@ public class DataProvider extends ContentProvider {
     static final String KEY_WORKOUT_TIME = "time";
     static final String KEY_WORKOUT_DISTANCE = "distance";
 
+    static final String KEY_DETAIL_ID = "id";
+    static final String KEY_DETAIL_TIME = "time";
+    static final String KEY_DETAIL_LATITUDE = "latitude";
+    static final String KEY_DETAIL_LONGITUDE = "longitude";
+    static final String KEY_DETAIL_STEPS = "steps";
+
     static final int WORKOUTS = 1;
     static final int WORKOUT_ID = 2;
     static final int USERPROFILE = 3;
+    static final int DETAILS = 4;
+    static final int DETAILS_ID = 5;
 
     static final UriMatcher uriMatcher;
     static{
@@ -47,6 +57,8 @@ public class DataProvider extends ContentProvider {
         uriMatcher.addURI(PROVIDER_NAME, "workouts", WORKOUTS);
         uriMatcher.addURI(PROVIDER_NAME, "workouts/#", WORKOUT_ID);
         uriMatcher.addURI(PROVIDER_NAME, "profile", USERPROFILE);
+        uriMatcher.addURI(PROVIDER_NAME,"details", DETAILS);
+        uriMatcher.addURI(PROVIDER_NAME, "details/#", DETAILS_ID);
     }
 
     /*
@@ -56,6 +68,7 @@ public class DataProvider extends ContentProvider {
     private static final String DATABASE_NAME = "AlphaFitnessDatabase";
     static final String WORKOUT_TABLE_NAME = "workouts_Table";
     static final String USERPROFILE_TABLE_NAME= "userProfile_Table";
+    static final String DETAIL_TABLE_NAME = "detail_Table";
 
     /*
      * other way, to clean Database is set WIPEDB to true
@@ -90,12 +103,24 @@ public class DataProvider extends ContentProvider {
                     + KEY_WORKOUT_DISTANCE + " REAL" + ")"
                     ;
             database.execSQL (tableWorkout);
+
+            String tableDetail = "CREATE TABLE " + DETAIL_TABLE_NAME + "("
+                    + KEY_DETAIL_ID + " INTEGER,"
+                    + KEY_DETAIL_TIME + " INTEGER,"
+                    + KEY_DETAIL_LATITUDE + " REAL,"
+                    + KEY_DETAIL_LONGITUDE + " REAL,"
+                    + KEY_DETAIL_STEPS + " INTEGER,"
+                    + "PRIMARY KEY (" + KEY_DETAIL_ID + "," + KEY_DETAIL_TIME + " )  )"
+                    ;
+            database.execSQL (tableDetail);
+
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase database, int i, int i1) {
             database.execSQL("DROP TABLE IF EXISTS " + USERPROFILE_TABLE_NAME);
             database.execSQL("DROP TABLE IF EXISTS " + WORKOUT_TABLE_NAME);
+            database.execSQL("DROP TABLE IF EXISTS " + DETAIL_TABLE_NAME);
             onCreate(database);
         }
 
@@ -134,6 +159,13 @@ public class DataProvider extends ContentProvider {
 
             case USERPROFILE:
                 qb.setTables(USERPROFILE_TABLE_NAME);
+                break;
+            case DETAILS:
+                qb.setTables(DETAIL_TABLE_NAME);
+                break;
+            case DETAILS_ID:
+                qb.setTables(DETAIL_TABLE_NAME);
+                qb.appendWhere( KEY_DETAIL_ID + "=" + uri.getPathSegments().get(1));
                 break;
             default:
         }
@@ -175,7 +207,15 @@ public class DataProvider extends ContentProvider {
                     return _uri;
                 }
                 break;
+            case DETAILS:
+                rowID = db.insert(DETAIL_TABLE_NAME, "", values);
 
+                if (rowID > 0) {
+                    Uri _uri = ContentUris.withAppendedId(DETAILS_URI, rowID);
+                    getContext().getContentResolver().notifyChange(_uri, null);
+                    return _uri;
+                }
+                break;
             default:
                 throw new SQLException("Failed to add a record into " + uri);
         }
@@ -197,6 +237,9 @@ public class DataProvider extends ContentProvider {
                 break;
             case USERPROFILE:
                 count = db.delete(USERPROFILE_TABLE_NAME, selection, selectionArgs);
+                break;
+            case DETAILS:
+                count = db.delete(DETAIL_TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -221,6 +264,9 @@ public class DataProvider extends ContentProvider {
                 break;
             case USERPROFILE:
                 count = db.update(USERPROFILE_TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case DETAILS:
+                count = db.update(DETAIL_TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri );

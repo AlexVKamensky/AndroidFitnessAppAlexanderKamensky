@@ -18,7 +18,9 @@ public class AlphaFtinessModel {
     public AlphaFtinessModel(Activity context){
         this.profile = new UserProfile();
         this.contentResolver = context.getContentResolver();
+        model = this;
     }
+
 
     public void addWorkout(Workout workout){
         //this.profile.workouts.add(workout);
@@ -60,7 +62,7 @@ public class AlphaFtinessModel {
 
             } while (cursor.moveToNext());
 
-            Workout.idCount = maxId;
+            Workout.idCount = maxId+1;
         }
         cursor.close();
         return workoutlist;
