@@ -9,9 +9,12 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ButtonBarLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         ModelTest.testModel(this);
         workoutButton = (Button) findViewById(R.id.workoutbutton);
         this.setButtonLabel();
-
     }
 
     private void setButtonLabel(){
@@ -75,7 +77,17 @@ public class MainActivity extends AppCompatActivity {
             this.setButtonLabel();
         }
     }
-
+    public void oneUserPressed(View v){
+        UserProfile user1 = new UserProfile();
+        user1.setGender("Male");
+        user1.setName("Praneet Singh");
+        user1.setWeight(180);
+        Intent intent = new Intent( getApplicationContext(), UserInfo.class);
+        Gson userGson = new Gson();
+        String userString = userGson.toJson(user1);
+        intent.putExtra("userInfo", userString);
+        startActivity(intent);
+    }
     private void readWorkoutDetails(Integer id) {
         Uri details = Uri.parse(DataProvider.DETAILS_URL +"/" + id.toString());
         Cursor cursor = getContentResolver().query(details, null, null, null, null);
