@@ -30,26 +30,91 @@
         android:gravity="center_vertical|center_horizontal"
         />
 
-    <TextView
-        android:id="@+id/distanceTitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/record_workout_distance_title_text"
-        android:layout_below="@+id/recordWorkoutText"
-        android:layout_alignParentLeft="true"
+
+    <LinearLayout
+        android:id="@+id/dataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_gravity="center"
+        android:layout_below="@id/recordWorkoutText">
+
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            >
+
+            <TextView
+                android:id="@+id/distanceTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="@string/record_workout_distance_title_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+            <TextView
+                android:id="@+id/distanceAmountText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_workout_distance_amount_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+            <TextView
+                android:id="@+id/distanceUnitText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_workout_distance_unit_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/durationTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_workout_duration_title_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+            <TextView
+                android:id="@+id/durationAmountText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_workout_duration_amount_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+            <TextView
+                android:id="@+id/durationUnitText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record_workout_duration_unit_text"
+                android:gravity="center_vertical|center_horizontal"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/dataLayout"
         />
-
-    <TextView
-        android:id="@+id/durationTitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/recordWorkoutText"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/distanceTitleText"
-        android:gravity="left"
-        android:text="@string/record_workout_duration_title_text" />
-
-
 
     <Button
         android:id="@+id/workoutbutton"
@@ -62,5 +127,7 @@
         android:text="@string/record_workout_record_button_start_text"
         android:gravity="center_vertical|center_horizontal"
         />
+
+
 
 </RelativeLayout>

@@ -7,8 +7,11 @@
     <string name="record_workout_record_button_start_text">Start Workout</string>
     <string name="record_workout_record_button_end_text">End Workout</string>
     <string name="record_workout_distance_title_text">DISTANCE</string>
+    <string name="record_workout_distance_amount_text">0</string>
     <string name="record_workout_distance_unit_text">KM</string>
     <string name="record_workout_duration_title_text">DURATION</string>
+    <string name="record_workout_duration_amount_text">0</string>
     <string name="record_workout_duration_unit_text">Minutes</string>
     <string name="title_activity_user_info">UserInfo</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
