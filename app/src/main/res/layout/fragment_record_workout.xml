@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".RecordWorkoutFragment">
 
     <TextView
@@ -11,24 +12,55 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_alignParentLeft="true"
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:text="@string/record_workout_title_text"
         />
 
-    <ImageButton
-        android:id="@+id/recordWorkoutProfileButton"
-        android:layout_width="84dp"
-        android:layout_height="55dp"
-        android:layout_gravity="top"
-        android:layout_toRightOf="@id/recordWorkoutText" />
-
     <Button
-        android:id="@+id/startWorkoutButton"
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/recordWorkoutText"
+        android:layout_alignParentRight="true"
+        android:text="User"
+        android:onClick="onUserPressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center_vertical|center_horizontal"
+        />
+
+    <TextView
+        android:id="@+id/distanceTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/record_workout_distance_title_text"
+        android:layout_below="@+id/recordWorkoutText"
+        android:layout_alignParentLeft="true"
+        />
+
+    <TextView
+        android:id="@+id/durationTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/recordWorkoutText"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/distanceTitleText"
+        android:gravity="left"
+        android:text="@string/record_workout_duration_title_text" />
+
+
+
+    <Button
+        android:id="@+id/workoutbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="bottom"
-        android:text="@string/record_workout_start_button_text" />
+        android:layout_marginTop="79dp"
+        android:onClick="workoutButtonPressed"
+        android:text="@string/record_workout_record_button_start_text"
+        android:gravity="center_vertical|center_horizontal"
+        />
 
 </RelativeLayout>

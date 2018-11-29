@@ -4,6 +4,11 @@
     <string name="title_activity_profile">ProfileActivity</string>
 
     <string name="record_workout_title_text">Record Workout</string>
-    <string name="record_workout_start_button_text">Star Workout</string>
+    <string name="record_workout_record_button_start_text">Start Workout</string>
+    <string name="record_workout_record_button_end_text">End Workout</string>
+    <string name="record_workout_distance_title_text">DISTANCE</string>
+    <string name="record_workout_distance_unit_text">KM</string>
+    <string name="record_workout_duration_title_text">DURATION</string>
+    <string name="record_workout_duration_unit_text">Minutes</string>
     <string name="title_activity_user_info">UserInfo</string>
 </resources>

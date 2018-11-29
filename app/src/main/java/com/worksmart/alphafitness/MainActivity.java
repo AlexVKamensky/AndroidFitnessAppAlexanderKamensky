@@ -14,17 +14,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.gson.Gson;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    WorkoutService service;
-    boolean bound = false;
-
-    Button workoutButton;
-
-    boolean newWorkout = true;
-    Workout workout;
+    RecordWorkoutFragment recordWorkoutFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,61 +28,29 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Main", "Calling on create");
         //ContentProvider dataProvider = getContentResolver();
         ModelTest.testModel(this);
-        workoutButton = (Button) findViewById(R.id.workoutbutton);
-        this.setButtonLabel();
+
     }
 
-    private void setButtonLabel(){
-        if(workout== null) {
-            workoutButton.setText("Start Workout");
-        }
-        else{
-            workoutButton.setText("End Workout");
-        }
-    }
+
     @Override
     protected void onStart() {
         super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, WorkoutService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        recordWorkoutFragment = (RecordWorkoutFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.RecordWorkoutFragment);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unbindService(mConnection);
-        bound = false;
+        AppState.state.serviceBound= false;
     }
 
-    public void workoutButtonPressed(View v){
-        if(bound){
-            if(workout==null){
-                workout = new Workout(1);
-                AlphaFtinessModel.model.getProfile().workouts.add(workout);
-                AlphaFtinessModel.model.addWorkout(workout);
-                service.startWorkout(workout.getId());
-            }
-            else {
-                service.stopWorkout();
-                this.readWorkoutDetails(workout.getId());
-                workout = null;
-            }
-            this.setButtonLabel();
-        }
-    }
-    public void oneUserPressed(View v){
-        UserProfile user1 = new UserProfile();
-        user1.setGender("Male");
-        user1.setName("Praneet Singh");
-        user1.setWeight(180);
-        Intent intent = new Intent( getApplicationContext(), UserInfo.class);
-        Gson userGson = new Gson();
-        String userString = userGson.toJson(user1);
-        intent.putExtra("userInfo", userString);
-        startActivity(intent);
-    }
-    private void readWorkoutDetails(Integer id) {
+
+    public void readWorkoutDetails(Integer id) {
         Uri details = Uri.parse(DataProvider.DETAILS_URL +"/" + id.toString());
         Cursor cursor = getContentResolver().query(details, null, null, null, null);
         if (cursor.moveToFirst()) {
@@ -100,6 +62,35 @@ public class MainActivity extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
     }
+
+    public void workoutButtonPressed(View v){
+        if(AppState.state.serviceBound){
+            if(AppState.state.workout==null){
+                AppState.state.workout = new Workout(1);
+                AlphaFtinessModel.model.getProfile().workouts.add(AppState.state.workout);
+                AlphaFtinessModel.model.addWorkout(AppState.state.workout);
+                AppState.state.service.startWorkout(AppState.state.workout.getId());
+            }
+            else {
+                AppState.state.service.stopWorkout();
+                readWorkoutDetails(AppState.state.workout.getId());
+                AppState.state.workout = null;
+            }
+            if(recordWorkoutFragment != null) {
+                recordWorkoutFragment.setButtonLabel();
+            }
+        }
+    }
+
+    public void onUserPressed(View v){
+        UserProfile user1 = new UserProfile();
+        user1.setGender("Male");
+        user1.setName("Praneet Singh");
+        user1.setWeight(180);
+        Intent intent = new Intent( getApplicationContext(), UserInfo.class);
+        startActivity(intent);
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -107,21 +98,21 @@ public class MainActivity extends AppCompatActivity {
                                        IBinder serviceBinder) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             WorkoutService.LocalBinder binder = (WorkoutService.LocalBinder) serviceBinder;
-            service = binder.getService();
-            bound = true;
-            Integer workoutID = service.getWorkoutID();
+            AppState.state.service = binder.getService();
+            AppState.state.serviceBound = true;
+            Integer workoutID = AppState.state.service.getWorkoutID();
 
             if(workoutID != -1){
-                workout = AlphaFtinessModel.model.profile.workouts.get(workoutID);
-                newWorkout = false;
+                AppState.state.workout = AlphaFtinessModel.model.profile.workouts.get(workoutID);
             }
-            setButtonLabel();
+            if(recordWorkoutFragment != null) {
+                recordWorkoutFragment.setButtonLabel();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            bound = false;
+            AppState.state.serviceBound = false;
         }
     };
-
 }
