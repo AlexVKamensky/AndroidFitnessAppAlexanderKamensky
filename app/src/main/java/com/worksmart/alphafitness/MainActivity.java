@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -13,12 +15,18 @@ import android.support.v7.widget.ButtonBarLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.os.Handler;
 
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener {
+
+    private final Integer uiUpdateIntervalMS = 1000;
 
     RecordWorkoutFragment recordWorkoutFragment;
+
+    public Handler handler = null;
+    public static Runnable runnable = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         recordWorkoutFragment = (RecordWorkoutFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.RecordWorkoutFragment);
+
     }
 
     @Override
@@ -70,10 +79,11 @@ public class MainActivity extends AppCompatActivity {
                 AlphaFtinessModel.model.getProfile().workouts.add(AppState.state.workout);
                 AlphaFtinessModel.model.addWorkout(AppState.state.workout);
                 AppState.state.service.startWorkout(AppState.state.workout.getId());
+                startWorkoutRecordUiUodate();
             }
             else {
                 AppState.state.service.stopWorkout();
-                readWorkoutDetails(AppState.state.workout.getId());
+                //readWorkoutDetails(AppState.state.workout.getId());
                 AppState.state.workout = null;
             }
             if(recordWorkoutFragment != null) {
@@ -89,6 +99,22 @@ public class MainActivity extends AppCompatActivity {
         user1.setWeight(180);
         Intent intent = new Intent( getApplicationContext(), UserInfo.class);
         startActivity(intent);
+    }
+
+    public void startWorkoutRecordUiUodate(){
+        handler = new Handler();
+        recordWorkoutFragment.startUpdateDetailsUI();
+        runnable = new Runnable() {
+            public void run() {
+                recordWorkoutFragment.updateDetailsUI();
+                if (AppState.state.workout != null) {
+                    handler.postDelayed(runnable, uiUpdateIntervalMS);
+                }
+            }
+        };
+
+        recordWorkoutFragment.updateDetailsUI();
+        handler.postDelayed(runnable, uiUpdateIntervalMS);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -115,4 +141,24 @@ public class MainActivity extends AppCompatActivity {
             AppState.state.serviceBound = false;
         }
     };
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 }

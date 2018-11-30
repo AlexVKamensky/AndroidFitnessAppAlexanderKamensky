@@ -6,6 +6,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -14,6 +17,9 @@ public class AlphaFtinessModel {
 
     public static AlphaFtinessModel model;
     ContentResolver contentResolver;
+
+    public Workout currWorkout;
+
 
     public AlphaFtinessModel(Activity context){
         this.profile = new UserProfile();
@@ -79,5 +85,52 @@ public class AlphaFtinessModel {
         }
         cursor.close();
         return this.profile;
+    }
+
+    public WorkoutDetails getWorkoutDetails(Integer id){
+        WorkoutDetails wd = new WorkoutDetails();
+        Uri details = Uri.parse(DataProvider.DETAILS_URL +"/" + id.toString());
+        Cursor cursor = this.contentResolver.query(details, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                //Log.d("getWorkoutDetails", "ID is " + cursor.getInt(0) + " Time is " + cursor.getInt(1) +
+                //       " Latitude is " + cursor.getDouble(2) + " Longitude is " + cursor.getDouble(3) +
+                //        " Step Count is " + cursor.getDouble(4));
+                LatLng coord = new LatLng(cursor.getDouble(2), cursor.getDouble(3));
+                WorkoutSample sample = new WorkoutSample(coord, cursor.getDouble(4), cursor.getInt(1));
+                wd.basicdata.add(sample);
+
+            } while (cursor.moveToNext());
+        }
+        return wd;
+    }
+
+    public static class WorkoutSample{
+        LatLng coordinate;
+        double steps;
+        long time;
+
+        public WorkoutSample(LatLng coordinate, double steps, long time){
+            this.coordinate = coordinate;
+            this.steps = steps;
+            this.time = time;
+        }
+    }
+
+    public class WorkoutDetails{
+
+        public ArrayList<WorkoutSample> basicdata;
+        public double distance;
+        public double minSpeed;
+        public double maxSpeed;
+        public double speed;
+
+        public WorkoutDetails(){
+            basicdata = new ArrayList<WorkoutSample>();
+            distance = 0;
+            minSpeed = 0;
+            maxSpeed = 0;
+            speed = 0;
+        }
     }
 }

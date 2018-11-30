@@ -24,12 +24,14 @@ import android.util.Log;
 import android.widget.Toast;
 import android.location.LocationManager;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.net.URI;
 import java.util.Random;
 
 public class WorkoutService extends Service implements LocationListener {
 
-    private final Integer sampleIntervalMS = 5000;
+    private final Integer sampleIntervalMS = 1000;
     private final Boolean useLocation = true;
     private final Boolean usePedometer = false;
     // steps simulation number of steps in 5 seconds
@@ -142,7 +144,11 @@ public class WorkoutService extends Service implements LocationListener {
                     return;
                 }
                 Location current = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                this.storeWorkoutDetails(System.currentTimeMillis(), current.getLatitude(), current.getLongitude(), steps);
+                long time = System.currentTimeMillis();
+                this.storeWorkoutDetails(time, current.getLatitude(), current.getLongitude(), steps);
+                //LatLng coord = new LatLng(current.getLatitude(), current.getLongitude());
+                //AlphaFtinessModel.WorkoutSample newSample = new AlphaFtinessModel.WorkoutSample(coord, steps, time);
+                //AlphaFtinessModel.model.UpdateModel(newSample, 0, 0, 0 , 0);
 
             } else {
                 Random random = new Random();
@@ -150,7 +156,7 @@ public class WorkoutService extends Service implements LocationListener {
             }
         }
         //Toast.makeText(context, "Count is " + count + " and WorkoutID is " + workoutID, Toast.LENGTH_LONG).show();
-        Log.d("ServiceTest", "Count is " + count + " and WorkoutID is " + workoutID);
+        //Log.d("ServiceTest", "Count is " + count + " and WorkoutID is " + workoutID);
     }
 
     public double generateStepsCount(){
@@ -185,7 +191,7 @@ public class WorkoutService extends Service implements LocationListener {
     }
 
     public void stopWorkout(){
-        this.readAllWorkoutsDetails();
+        //this.readAllWorkoutsDetails();
         workoutID = -1;
     }
 
@@ -196,11 +202,11 @@ public class WorkoutService extends Service implements LocationListener {
 
     public void storeWorkoutDetails(long time, double lat, double longt, double steps){
         ContentValues values = new ContentValues();
-        Log.d("ServiceTest", "WorkoutID is " + workoutID +
-                " Time is " + time +
-                " Latitude is " + lat +
-                " Longitude is " + longt +
-                " Steps is " + steps);
+        //Log.d("ServiceTest", "WorkoutID is " + workoutID +
+        //        " Time is " + time +
+        //        " Latitude is " + lat +
+        //        " Longitude is " + longt +
+        //       " Steps is " + steps);
 
         values.put(DataProvider.KEY_DETAIL_ID, workoutID);
         values.put(DataProvider.KEY_DETAIL_TIME, time);

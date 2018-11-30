@@ -48,7 +48,7 @@ public class UserInfo extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        model = new AlphaFtinessModel(this);
+        model = AlphaFtinessModel.model;
         addUser();
         setContentView(R.layout.activity_user_info);
         Toolbar toolbar = findViewById(R.id.toolbar);
