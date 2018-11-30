@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             do {
                 Log.d("MainActivityTest", "ID is " + cursor.getInt(0) + " Time is " + cursor.getInt(1) +
                         " Latitude is " + cursor.getDouble(2) + " Longitude is " + cursor.getDouble(3) +
-                        " Step Count is " + cursor.getInt(4));
+                        " Step Count is " + cursor.getDouble(4));
 
             } while (cursor.moveToNext());
         }

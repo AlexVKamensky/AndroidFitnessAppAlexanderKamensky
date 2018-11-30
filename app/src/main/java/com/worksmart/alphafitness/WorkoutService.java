@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.hardware.TriggerEvent;
+import android.hardware.TriggerEventListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -27,7 +31,10 @@ public class WorkoutService extends Service implements LocationListener {
 
     private final Integer sampleIntervalMS = 5000;
     private final Boolean useLocation = true;
-    private Random random;
+    private final Boolean usePedometer = false;
+    // steps simulation number of steps in 5 seconds
+    private final double minVal = 7.0f;
+    private final double maxVal = 11.0f;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -38,6 +45,11 @@ public class WorkoutService extends Service implements LocationListener {
     private Integer count;
     private Integer workoutID;
     public LocationManager locationManager;
+
+    private SensorManager sensorManager;
+    private Sensor stepCounter;
+
+    private double lastSteps;
 
     @Override
     public void onLocationChanged(Location location) {
@@ -93,7 +105,6 @@ public class WorkoutService extends Service implements LocationListener {
                 }
             }
         };
-        random = new Random();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -102,6 +113,18 @@ public class WorkoutService extends Service implements LocationListener {
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if(stepCounter != null) {
+            TriggerEventListener listener = new TriggerEventListener() {
+                @Override
+                public void onTrigger(TriggerEvent event) {
+                    lastSteps = event.values.length;
+                }
+            };
+            sensorManager.requestTriggerSensor(listener, stepCounter);
+        }
+
         doSample();
         handler.postDelayed(runnable, sampleIntervalMS);
     }
@@ -109,7 +132,7 @@ public class WorkoutService extends Service implements LocationListener {
     public void doSample() {
         count = count + 1;
         if (workoutID != -1) {
-            Integer steps = random.nextInt();
+            double steps = generateStepsCount();
             if (useLocation) {
                 if (ActivityCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -122,12 +145,25 @@ public class WorkoutService extends Service implements LocationListener {
                 this.storeWorkoutDetails(System.currentTimeMillis(), current.getLatitude(), current.getLongitude(), steps);
 
             } else {
+                Random random = new Random();
                 this.storeWorkoutDetails(count, random.nextDouble(), random.nextDouble(), steps);
             }
         }
         //Toast.makeText(context, "Count is " + count + " and WorkoutID is " + workoutID, Toast.LENGTH_LONG).show();
         Log.d("ServiceTest", "Count is " + count + " and WorkoutID is " + workoutID);
     }
+
+    public double generateStepsCount(){
+
+        if(usePedometer){
+            return lastSteps;
+        }
+        else {
+            Random rand = new Random();
+            return rand.nextFloat() * (maxVal - minVal) + minVal;
+        }
+    }
+
     @Override
     public void onDestroy() {
         /* IF YOU WANT THIS SERVICE KILLED WITH THE APP THEN UNCOMMENT THE FOLLOWING LINE */
@@ -158,7 +194,7 @@ public class WorkoutService extends Service implements LocationListener {
     }
 
 
-    public void storeWorkoutDetails(long time, double lat, double longt, Integer steps){
+    public void storeWorkoutDetails(long time, double lat, double longt, double steps){
         ContentValues values = new ContentValues();
         Log.d("ServiceTest", "WorkoutID is " + workoutID +
                 " Time is " + time +
@@ -182,7 +218,7 @@ public class WorkoutService extends Service implements LocationListener {
             do {
                 Log.d("ServiceTest", "ID is " + cursor.getInt(0) + " Time is " + cursor.getInt(1) +
                         " Latitude is " + cursor.getDouble(2) + " Longitude is " + cursor.getDouble(3) +
-                        " Step count is " + cursor.getInt(4));
+                        " Step count is " + cursor.getDouble(4));
 
             } while (cursor.moveToNext());
 

@@ -109,7 +109,7 @@ public class DataProvider extends ContentProvider {
                     + KEY_DETAIL_TIME + " INTEGER,"
                     + KEY_DETAIL_LATITUDE + " REAL,"
                     + KEY_DETAIL_LONGITUDE + " REAL,"
-                    + KEY_DETAIL_STEPS + " INTEGER,"
+                    + KEY_DETAIL_STEPS + " REAL,"
                     + "PRIMARY KEY (" + KEY_DETAIL_ID + "," + KEY_DETAIL_TIME + " )  )"
                     ;
             database.execSQL (tableDetail);
