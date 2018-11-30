@@ -15,6 +15,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -62,10 +63,27 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        UiSettings uis =  mMap.getUiSettings();
+        uis.setZoomControlsEnabled(true);
+        uis.setMapToolbarEnabled(true);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng startLocation = new LatLng(37.562401, -122.049792);
+        mMap.addMarker(new MarkerOptions().position(startLocation).title("Marker of Start Location"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(startLocation));
+
+        //float zoom = mMap.getCameraPosition().zoom;
+        //Log.d(logId, "Zoom is " + zoom);
+        // Zoom is set 18 which was the reasonable compramise between 15 street view and 20 building view
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+        //zoom = mMap.getCameraPosition().zoom;
+        //Log.d(logId, "Zoom is " + zoom);
+
+    }
+
+    @Override
+    public void onResume() {
+        //magic needed to make map respond/alive
+        mapView.onResume();
+        super.onResume();
     }
 }
