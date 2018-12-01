@@ -165,21 +165,21 @@ public class UserInfo extends AppCompatActivity {
         model.profile.calculateValues();
 
         // now updates UI
-        String avDis = distanceFormat(model.profile.avgDistance)+ " km";
+        String avDis = distanceFormat(model.profile.avgDistance);
         averageDistance.setText(avDis);
-        String avCal = String.valueOf(model.profile.avgCalories) + " Cal";
+        String avCal = caloriesFormat(model.profile.avgCalories);
         averageCalBurned.setText(avCal);
-        String avW = String.valueOf(model.profile.weekWorkoutCount)+" times";
+        String avW = timesFormat(model.profile.weekWorkoutCount);
         averageWorkouts.setText(avW);
 
         averageTime.setText(timeFormat(model.profile.avgTime));
 
         allTime.setText(timeFormat(model.profile.totalTime));
-        String tDis = distanceFormat(model.profile.totalDistance)+ " km";
+        String tDis = distanceFormat(model.profile.totalDistance);
         allDistance.setText(tDis);
-        String tW = String.valueOf(model.profile.totalWorkoutCount)+" times";
+        String tW = timesFormat(model.profile.totalWorkoutCount);
         allWorkouts.setText(tW);
-        String tCal = String.valueOf(model.profile.totalCalories)+ " Cal";
+        String tCal = caloriesFormat(model.profile.totalCalories);
         allCalBurned.setText(tCal);
     }
 
@@ -204,7 +204,13 @@ public class UserInfo extends AppCompatActivity {
     }
     public static String distanceFormat(double number) {
         DecimalFormat df = new DecimalFormat("0.000");
-        return df.format(number).replaceAll("\\.000$", "");
+        return df.format(number).replaceAll("\\.000$", "") + " km";
+    }
+    public static String caloriesFormat(Integer cal){
+        return cal.toString() + " Cal";
+    }
+    public static String timesFormat(Integer times){
+        return times.toString() + " times";
     }
     public boolean startUpdateDetailsUI(){
         try{

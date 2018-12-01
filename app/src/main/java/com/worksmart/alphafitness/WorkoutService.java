@@ -34,9 +34,9 @@ public class WorkoutService extends Service implements LocationListener {
     private final Integer sampleIntervalMS = 1000;
     private final Boolean useLocation = true;
     private final Boolean usePedometer = false;
-    // steps simulation number of steps in 5 seconds
-    private final double minVal = 7.0f;
-    private final double maxVal = 11.0f;
+    // steps simulation number of steps in 1 seconds
+    private final double minVal = 3.0f;
+    private final double maxVal = 5.0f;
 
     private final IBinder mBinder = new LocalBinder();
 

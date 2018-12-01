@@ -1,6 +1,5 @@
 package com.worksmart.alphafitness;
 import android.app.Activity;
-import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;

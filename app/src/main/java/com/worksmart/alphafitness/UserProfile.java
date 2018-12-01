@@ -34,6 +34,8 @@ public class UserProfile {
     Integer totalWorkoutCount;
     Integer totalCalories;
 
+    double caloriesPerThousandSteps;
+
     public UserProfile(){
         this.name = "";
         this.gender = "";
@@ -41,15 +43,6 @@ public class UserProfile {
         this.workouts = new ArrayList<Workout>();
     }
 
-    public void loadProfileFromDatabase(){
-        // TBD
-        return;
-    }
-
-    public void saveProfileToDatabase(){
-        // TBD
-        return;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -118,6 +111,16 @@ public class UserProfile {
             this.avgTime = sumTime / sumWorkouts;
             this.avgCalories = sumCalories / sumWorkouts;
         }
+    }
+
+    public double getCaloriesPerThousandSteps(){
+        // numbers derived from table for 5'6''-5'1'' at
+        // https://www.verywellfit.com/pedometer-steps-to-calories-converter-3882595
+        double ret = 25.0 + ((this.weight - 45.0) / 9.0) * 5;
+        if(ret < 0){
+            ret = 0;
+        }
+        return ret;
     }
 
     public void printWorkouts(String tag){

@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 
 public class AlphaFtinessModel {
     final private String logId = "AlphaFtinessModel";
+
     public UserProfile profile;
 
     public static AlphaFtinessModel model;
@@ -141,6 +141,7 @@ public class AlphaFtinessModel {
         }
         float[] results = new float[1];
         float distance = 0;
+        double steps = 0;
         WorkoutSample prev = null;
         for (WorkoutSample sample: wd.basicdata){
             if(prev != null){
@@ -148,18 +149,23 @@ public class AlphaFtinessModel {
                             sample.coordinate.latitude, sample.coordinate.longitude,
                             results);
                 distance = distance + results[0];
+                steps = steps + sample.steps;
             }
             prev = sample;
         }
         wd.distance = distance/1000.0;
         wd.duration = wd.basicdata.get(wd.basicdata.size()-1).time - wd.basicdata.get(0).time;
+        Integer calories =  getCaloriesFromSteps(steps);
         AppState.state.workout.setStartTime(wd.basicdata.get(0).time);
         AppState.state.workout.setDistance(wd.distance);
         AppState.state.workout.setTime((int) wd.duration);
-        AppState.state.workout.setTotalCalories(0);
+        AppState.state.workout.setTotalCalories(calories);
         return wd;
     }
 
+    public Integer getCaloriesFromSteps(double steps){
+        return new Integer((int) (steps*profile.getCaloriesPerThousandSteps()/1000.0));
+    }
 
     public static class WorkoutSample{
         LatLng coordinate;
