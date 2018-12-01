@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class UserProfile {
 
+    final static private String logId = "UserProfile";
 
     // persistent state should be saved/read into/from database
     private String name;
@@ -84,7 +85,7 @@ public class UserProfile {
         return image;
     }
 
-    public void calculateValues(Integer week){
+    public void calculateValues(){
         Integer sumWorkouts = 0;
         double sumDistance = 0;
         Integer sumTime = 0;
@@ -94,9 +95,13 @@ public class UserProfile {
         this.totalDistance = 0;
         this.totalTime = 0;
         this.totalCalories = 0;
-
+        long now = System.currentTimeMillis();
+        long lastWeekStart = now - (7*24*60*60*1000);
         for(Workout workout: this.workouts){
-            if(workout.getWeek() == week) {
+            Log.d(logId, "lastWeekStart = " + lastWeekStart);
+            Log.d(logId, "workout start time = " + workout.getStartTime());
+            if(workout.getStartTime() >= lastWeekStart) {
+                Log.d(logId, "Last week workout");
                 sumWorkouts = sumWorkouts + 1;
                 sumDistance = sumDistance + workout.getDistance();
                 sumTime = sumTime + workout.getTime();
@@ -108,15 +113,17 @@ public class UserProfile {
             this.totalCalories = this.totalCalories + workout.getTotalCalories();
         }
         this.weekWorkoutCount = sumWorkouts;
-        this.avgDistance = sumDistance/sumWorkouts;
-        this.avgTime = sumTime/sumWorkouts;
-        this.avgCalories = sumCalories/sumWorkouts;
+        if (sumWorkouts != 0) {
+            this.avgDistance = sumDistance / sumWorkouts;
+            this.avgTime = sumTime / sumWorkouts;
+            this.avgCalories = sumCalories / sumWorkouts;
+        }
     }
 
     public void printWorkouts(String tag){
         for(Workout workout : this.workouts){
             Log.d(tag, "Workout id is " + workout.getId());
-            Log.d(tag, "Workout week is " + workout.getWeek());
+            Log.d(tag, "Workout start time is " + workout.getStartTime());
             Log.d(tag, "Workout time is " + workout.getTime());
             Log.d(tag, "Workout calories are " + workout.getTotalCalories());
             Log.d(tag, "Workout distance is " + workout.getDistance());

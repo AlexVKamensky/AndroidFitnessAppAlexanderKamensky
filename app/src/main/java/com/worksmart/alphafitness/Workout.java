@@ -5,23 +5,28 @@ public class Workout {
     private Integer totalCalories;
     private Integer time;
     private double distance;
-    private Integer week;
+    private Long startTime;
 
     public static Integer idCount=0;
 
 
-    public Workout(Integer week){
+    public Workout(){
         this.id = idCount;
         idCount = idCount +1;
-        this.week  = week;
+        AlphaFtinessModel.model.profile.workouts.add(this);
     }
 
-    public Workout(Integer id, Integer week, Integer totalCalories, Integer time, double distance){
+    public Workout(Integer id, Long startTime, Integer time, Integer totalCalories, double distance){
         this.id = id;
-        this.week = week;
+        this.startTime = startTime;
         this.totalCalories = totalCalories;
         this.time = time;
         this.distance = distance;
+        AlphaFtinessModel.model.profile.workouts.add(this);
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
     }
 
     public void setTotalCalories(Integer totalCalories) {
@@ -48,10 +53,9 @@ public class Workout {
         return distance;
     }
 
-    public Integer getWeek() {
-        return week;
+    public Long getStartTime(){
+        return startTime;
     }
-
     public Integer getId() {
         return id;
     }

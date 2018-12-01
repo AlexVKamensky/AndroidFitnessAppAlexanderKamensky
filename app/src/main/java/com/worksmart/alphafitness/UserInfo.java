@@ -165,13 +165,13 @@ public class UserInfo extends AppCompatActivity {
         userName.setText(user.getName());
         userWeight.setText(String.valueOf(user.getWeight()));
         genderSpinner.setSelection(this.genderStringToSpinnerSelection(user.getGender()));
-       // model.profile.calculateValues(0);
-        averageDistance.setText(String.valueOf(model.profile.avgDistance)+ " miles");
+        model.profile.calculateValues();
+        averageDistance.setText(String.valueOf(model.profile.avgDistance)+ " km");
         averageCalBurned.setText(String.valueOf(model.profile.avgCalories) + " Cal");
         averageWorkouts.setText(String.valueOf(model.profile.weekWorkoutCount)+" times");
         averageTime.setText(String.valueOf(model.profile.avgTime));
         allTime.setText(String.valueOf(model.profile.totalTime));
-        allDistance.setText(String.valueOf(model.profile.totalDistance)+ " miles");
+        allDistance.setText(String.valueOf(model.profile.totalDistance)+ " km");
         allWorkouts.setText(String.valueOf(model.profile.totalWorkoutCount)+" times");
         allCalBurned.setText(String.valueOf(model.profile.totalCalories)+ " Cal");
 

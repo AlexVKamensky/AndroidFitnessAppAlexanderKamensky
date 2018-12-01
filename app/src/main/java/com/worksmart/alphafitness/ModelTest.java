@@ -24,33 +24,31 @@ public class ModelTest {
         Log.d("ModelTest", "The users weight is " + model.profile.getWeight());
         ArrayList<Workout> workouts = model.getWorkouts();
         if(workouts.isEmpty()) {
-            Workout testWorkout = new Workout(1);
+            Workout testWorkout = new Workout();
             testWorkout.setDistance(1.2);
             testWorkout.setTotalCalories(300);
             testWorkout.setTime(12);
             Log.d("ModelTest", "The distance of the workout is " + testWorkout.getDistance());
             Log.d("ModelTest", "The total calories of the workout is " + testWorkout.getTotalCalories());
             Log.d("ModelTest", "The time of the workout is " + testWorkout.getTime());
-            Log.d("ModelTest", "The week is " + testWorkout.getWeek());
+            Log.d("ModelTest", "The Start time is " + testWorkout.getStartTime());
 
-            model.profile.workouts.add(testWorkout);
 
             for (int i = 0; i < 4; i++) {
-                Workout newWorkout = new Workout(1);
+                Workout newWorkout = new Workout();
                 newWorkout.setDistance(1.0);
                 newWorkout.setTotalCalories(200);
                 newWorkout.setTime(10);
-                model.profile.workouts.add(newWorkout);
             }
 
-            testWorkout = new Workout(0);
+            testWorkout = new Workout();
             testWorkout.setTime(30);
             testWorkout.setTotalCalories(500);
             testWorkout.setDistance(12);
 
-            model.profile.workouts.add(testWorkout);
+
             model.profile.printWorkouts("ModelTest2");
-            model.profile.calculateValues(1);
+            model.profile.calculateValues();
 
             Log.d("ModelTest", "The number of workouts this week is " + model.profile.weekWorkoutCount);
             Log.d("ModelTest", "The average distance this week is " + model.profile.avgDistance);
@@ -71,7 +69,7 @@ public class ModelTest {
 
         }
         else{
-            model.profile.workouts = workouts;
+
             model.profile.printWorkouts("ModelTestDB");
         }
 

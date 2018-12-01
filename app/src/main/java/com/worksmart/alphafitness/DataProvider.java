@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 
 
 public class DataProvider extends ContentProvider {
+
+    final static String logId = "ContentProvider";
 
     static final String PROVIDER_NAME = "com.worksmart.alphafitness.DataProvider";
     static final String USERPROFILE_URL = "content://" + PROVIDER_NAME + "/profile";
@@ -34,7 +37,7 @@ public class DataProvider extends ContentProvider {
     static final String KEY_USERPROFILE_WEIGHT = "weight";
 
     static final String KEY_WORKOUT_ID = "_id";
-    static final String KEY_WORKOUT_WEEK = "week";
+    static final String KEY_WORKOUT_START_TIME = "start";
     static final String KEY_WORKOUT_CALORIES = "calories";
     static final String KEY_WORKOUT_TIME = "time";
     static final String KEY_WORKOUT_DISTANCE = "distance";
@@ -97,7 +100,7 @@ public class DataProvider extends ContentProvider {
 
             String tableWorkout = "CREATE TABLE " + WORKOUT_TABLE_NAME + "("
                     + KEY_WORKOUT_ID + " INTEGER PRIMARY KEY,"
-                    + KEY_WORKOUT_WEEK + " INTEGER,"
+                    + KEY_WORKOUT_START_TIME + " INTEGER,"
                     + KEY_WORKOUT_TIME + " INTEGER, "
                     + KEY_WORKOUT_CALORIES + " INTEGER,"
                     + KEY_WORKOUT_DISTANCE + " REAL" + ")"
@@ -149,6 +152,7 @@ public class DataProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)) {
             case WORKOUTS:
+                Log.d(logId, "Qeury for workouts");
                 qb.setTables(WORKOUT_TABLE_NAME);
                 break;
 
@@ -189,6 +193,7 @@ public class DataProvider extends ContentProvider {
         long rowID;
         switch (uriMatcher.match(uri)) {
             case WORKOUTS:
+                Log.d(logId, "Inserting workout");
                 rowID = db.insert(WORKOUT_TABLE_NAME, "", values);
 
                 if (rowID > 0) {
@@ -254,6 +259,7 @@ public class DataProvider extends ContentProvider {
         int count = 0;
         switch (uriMatcher.match(uri)) {
             case WORKOUTS:
+                Log.d(logId, "Updating Workouts");
                 count = db.update(WORKOUT_TABLE_NAME, values, selection, selectionArgs);
                 break;
 

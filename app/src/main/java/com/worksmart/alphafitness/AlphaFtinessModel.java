@@ -24,21 +24,22 @@ public class AlphaFtinessModel {
 
 
     public AlphaFtinessModel(Activity context){
+        model = this;
         this.contentResolver = context.getContentResolver();
         this.getProfile();
         Log.d(logId, "The users name is " + profile.getName());
         Log.d(logId, "The users gender is " + profile.getGender());
         Log.d(logId, "The users weight is " + profile.getWeight());
-        model = this;
+        getWorkouts();
+        profile.printWorkouts(logId);
     }
 
 
     public void addWorkout(Workout workout){
-        //this.profile.workouts.add(workout);
         ContentValues values = new ContentValues();
         values.put(DataProvider.KEY_WORKOUT_ID, workout.getId());
         values.put(DataProvider.KEY_WORKOUT_TIME, workout.getTime());
-        values.put(DataProvider.KEY_WORKOUT_WEEK, workout.getWeek());
+        values.put(DataProvider.KEY_WORKOUT_START_TIME, workout.getStartTime());
         values.put(DataProvider.KEY_WORKOUT_CALORIES, workout.getTotalCalories());
         values.put(DataProvider.KEY_WORKOUT_DISTANCE, workout.getDistance());
 
@@ -66,7 +67,7 @@ public class AlphaFtinessModel {
         if (cursor.moveToFirst()) {
             do {
                 Integer currId = cursor.getInt(0);
-                Workout workout = new Workout(currId, cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getDouble(4));
+                Workout workout = new Workout(currId, cursor.getLong(1), cursor.getInt(2), cursor.getInt(3), cursor.getDouble(4));
                 workoutlist.add(workout);
                 if (currId > maxId) {
                     maxId = currId;
@@ -111,6 +112,18 @@ public class AlphaFtinessModel {
         this.contentResolver.update(uprofile, values, mSelectionClause, null);
     }
 
+    public void updateWorkout(Workout workout){
+        ContentValues values = new ContentValues();
+        values.put(DataProvider.KEY_WORKOUT_ID, workout.getId());
+        values.put(DataProvider.KEY_WORKOUT_TIME, workout.getTime());
+        values.put(DataProvider.KEY_WORKOUT_START_TIME, workout.getStartTime());
+        values.put(DataProvider.KEY_WORKOUT_CALORIES, workout.getTotalCalories());
+        values.put(DataProvider.KEY_WORKOUT_DISTANCE, workout.getDistance());
+        String mSelectionClause = DataProvider.KEY_WORKOUT_ID + " = " + workout.getId();
+        Uri workouts = Uri.parse(DataProvider.WORKOUT_URL);
+        this.contentResolver.update(workouts, values, mSelectionClause, null);
+    }
+
     public WorkoutDetails getWorkoutDetails(Integer id){
         WorkoutDetails wd = new WorkoutDetails();
         Uri details = Uri.parse(DataProvider.DETAILS_URL +"/" + id.toString());
@@ -121,7 +134,7 @@ public class AlphaFtinessModel {
                 //       " Latitude is " + cursor.getDouble(2) + " Longitude is " + cursor.getDouble(3) +
                 //        " Step Count is " + cursor.getDouble(4));
                 LatLng coord = new LatLng(cursor.getDouble(2), cursor.getDouble(3));
-                WorkoutSample sample = new WorkoutSample(coord, cursor.getDouble(4), cursor.getInt(1));
+                WorkoutSample sample = new WorkoutSample(coord, cursor.getDouble(4), cursor.getLong(1));
                 wd.basicdata.add(sample);
 
             } while (cursor.moveToNext());
@@ -140,6 +153,10 @@ public class AlphaFtinessModel {
         }
         wd.distance = distance/1000.0;
         wd.duration = wd.basicdata.get(wd.basicdata.size()-1).time - wd.basicdata.get(0).time;
+        AppState.state.workout.setStartTime(wd.basicdata.get(0).time);
+        AppState.state.workout.setDistance(wd.distance);
+        AppState.state.workout.setTime((int) wd.duration);
+        AppState.state.workout.setTotalCalories(0);
         return wd;
     }
 
