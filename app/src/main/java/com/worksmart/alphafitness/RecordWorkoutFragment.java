@@ -11,8 +11,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +29,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -38,6 +42,7 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
 
     TextView distanceAmountText;
     TextView durationAmountText;
+    public static final int GET_LOCATION = 1;
 
     static final String logId = "RecordWorkout";
     AlphaFtinessModel model;
@@ -61,6 +66,15 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
         distanceAmountText = (TextView) view.findViewById(R.id.distanceAmountText);
         durationAmountText = (TextView) view.findViewById(R.id.durationAmountText);
 
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    GET_LOCATION);
+
+
+        }
         this.setButtonLabel();
         return view;
     }
@@ -88,16 +102,20 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
         if(AppState.state.workout != null) {
             ((MainActivity) getActivity()).startWorkoutRecordUiUodate();
         }
-        LatLng startLocation = getCurrentLocation();
-        //mMap.addMarker(new MarkerOptions().position(startLocation).title("Marker of Start Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(startLocation));
 
-        //float zoom = mMap.getCameraPosition().zoom;
-        //Log.d(logId, "Zoom is " + zoom);
-        // Zoom is set 18 which was the reasonable compramise between 15 street view and 20 building view
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
-        //zoom = mMap.getCameraPosition().zoom;
-        //Log.d(logId, "Zoom is " + zoom);
+        //
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            mMap.setMyLocationEnabled(true);
+            LatLng startLocation = getCurrentLocation();
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(startLocation));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLocation, 18));
+            //zoom = mMap.getCameraPosition().zoom;
+            //Log.d(logId, "Zoom is " + zoom);
+
+        }
+
 
     }
 
@@ -105,17 +123,19 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
         LatLng ret = null;
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           return ret;
+
+        }else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER , 1000, 10, (LocationListener) getActivity());
+            Location current = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            ret = new LatLng(current.getLatitude(), current.getLongitude());
             return ret;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, (LocationListener) getActivity());
-        Location current = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        ret = new LatLng(current.getLatitude(), current.getLongitude());
-        return ret;
+
+            }
     }
 
+    
     @Override
     public void onResume() {
         //magic needed to make map respond/alive
