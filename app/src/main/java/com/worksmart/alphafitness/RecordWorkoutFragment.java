@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.DecimalFormat;
+
 public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallback{
 
     MapView mapView;
@@ -139,6 +141,7 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
         AlphaFtinessModel.WorkoutDetails details = AlphaFtinessModel.model.getWorkoutDetails(AppState.state.workout.getId());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(details.basicdata.get(0).coordinate));
     }
+
     public void updateDetailsUI(){
         //Log.d(logId, "updateDetailsUI called");
         if(AppState.state.workout != null) {
@@ -162,12 +165,15 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
             path = mMap.addPolyline(pathOptions);
 
             String durationText = formatDuration(details.duration);
-            String distanceText = String.format("%.5g", details.distance);;
+            String distanceText = distanceFormat(details.distance);
             durationAmountText.setText(durationText);
             distanceAmountText.setText(distanceText);
         }
     }
-
+    public static String distanceFormat(double number) {
+        DecimalFormat df = new DecimalFormat("0.000");
+        return df.format(number).replaceAll("\\.000$", "");
+    }
     public String formatDuration(long duration){
         String ret = "";
         long seconds = duration/1000;
