@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class AlphaFtinessModel {
     final private String logId = "AlphaFtinessModel";
     final private Integer speedSampleSize = 5;
+    final private Boolean useStepsForDistance = true;
 
     public UserProfile profile;
 
@@ -147,11 +148,9 @@ public class AlphaFtinessModel {
         WorkoutSample prev = null;
         for (WorkoutSample sample: wd.basicdata){
             if(prev != null){
-                Location.distanceBetween(prev.coordinate.latitude, prev.coordinate.longitude,
-                            sample.coordinate.latitude, sample.coordinate.longitude,
-                            results);
-                distance = distance + results[0];
-                sample.distanceSincePrevSample = results[0];
+                float newDist = getAddDistance(prev, sample, results);
+                distance = distance + newDist;
+                sample.distanceSincePrevSample = newDist;
                 steps = steps + sample.steps;
             }
 
@@ -190,6 +189,33 @@ public class AlphaFtinessModel {
 
     public Integer getCaloriesFromSteps(double steps){
         return new Integer((int) (steps*profile.getCaloriesPerThousandSteps()/1000.0));
+    }
+
+    public float getAddDistance(WorkoutSample prev, WorkoutSample sample, float[] results){
+        float ret = 0;
+        if(useStepsForDistance == false) {
+            // location based distance calculation
+            Location.distanceBetween(prev.coordinate.latitude, prev.coordinate.longitude,
+                    sample.coordinate.latitude, sample.coordinate.longitude,
+                    results);
+            ret = results[0];
+        }
+        else{
+            // step by distance calculation according to
+            // https://www.verywellfit.com/set-pedometer-better-accuracy-3432895
+            double stepsAmount = sample.steps;
+            String gender = profile.getGender();
+            if(gender.equals("Male")){
+                ret = (float) (stepsAmount*0.762);
+            }
+            else if(gender.equals("Female")){
+                ret = (float) (stepsAmount*0.67);
+            }
+            else {
+                ret = (float) (stepsAmount*0.725);
+            }
+        }
+        return ret;
     }
 
     public static class WorkoutSample{
