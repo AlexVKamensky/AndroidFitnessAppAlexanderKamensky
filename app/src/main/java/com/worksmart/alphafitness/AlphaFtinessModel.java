@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 public class AlphaFtinessModel {
     final private String logId = "AlphaFtinessModel";
+    final private Integer speedSampleSize = 5;
 
     public UserProfile profile;
 
@@ -142,6 +143,7 @@ public class AlphaFtinessModel {
         float[] results = new float[1];
         float distance = 0;
         double steps = 0;
+        Integer count = 0;
         WorkoutSample prev = null;
         for (WorkoutSample sample: wd.basicdata){
             if(prev != null){
@@ -149,12 +151,35 @@ public class AlphaFtinessModel {
                             sample.coordinate.latitude, sample.coordinate.longitude,
                             results);
                 distance = distance + results[0];
+                sample.distanceSincePrevSample = results[0];
                 steps = steps + sample.steps;
             }
+
+            double speedDistance = 0;
+            long speedStartTime = 0;
+            if(count >= speedSampleSize){
+                for(int i = 0; i < speedSampleSize; i++){
+                    speedDistance = speedDistance + wd.basicdata.get(count - i).distanceSincePrevSample;
+                    speedStartTime = wd.basicdata.get(count -i).time;
+                }
+                long intervalTime = sample.time - speedStartTime;
+                // convert to seconds
+                intervalTime = intervalTime/1000;
+                wd.speed = speedDistance/intervalTime;
+                if(wd.speed > wd.maxSpeed){
+                    wd.maxSpeed = wd.speed;
+                }
+                if((wd.minSpeed == 0) || (wd.speed < wd.minSpeed)){
+                    wd.minSpeed = wd.speed;
+                }
+            }
+
             prev = sample;
+            count = count + 1;
         }
         wd.distance = distance/1000.0;
         wd.duration = wd.basicdata.get(wd.basicdata.size()-1).time - wd.basicdata.get(0).time;
+        //Log.d(logId, "Speed is " + wd.speed + " Max Speed is " + wd.maxSpeed + " Min Speed is " + wd.minSpeed);
         Integer calories =  getCaloriesFromSteps(steps);
         AppState.state.workout.setStartTime(wd.basicdata.get(0).time);
         AppState.state.workout.setDistance(wd.distance);
@@ -171,6 +196,7 @@ public class AlphaFtinessModel {
         LatLng coordinate;
         double steps;
         long time;
+        double distanceSincePrevSample;
 
         public WorkoutSample(LatLng coordinate, double steps, long time){
             this.coordinate = coordinate;
