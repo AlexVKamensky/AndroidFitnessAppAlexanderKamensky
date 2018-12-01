@@ -159,11 +159,12 @@ public class UserInfo extends AppCompatActivity {
         }else{
         }
     }
-    public void populateView(){
-        userName.setText(user.getName());
-        userWeight.setText(String.valueOf(user.getWeight()));
-        genderSpinner.setSelection(this.genderStringToSpinnerSelection(user.getGender()));
+
+    private void populateAggregatesView(){
+        // recalculate aggregate values
         model.profile.calculateValues();
+
+        // now updates UI
         String avDis = distanceFormat(model.profile.avgDistance)+ " km";
         averageDistance.setText(avDis);
         String avCal = String.valueOf(model.profile.avgCalories) + " Cal";
@@ -180,9 +181,17 @@ public class UserInfo extends AppCompatActivity {
         allWorkouts.setText(tW);
         String tCal = String.valueOf(model.profile.totalCalories)+ " Cal";
         allCalBurned.setText(tCal);
+    }
+
+    public void populateView(){
+        userName.setText(user.getName());
+        userWeight.setText(String.valueOf(user.getWeight()));
+        genderSpinner.setSelection(this.genderStringToSpinnerSelection(user.getGender()));
         if(user.getImage() != null){
             profilePic.setImageDrawable(user.getImage());
         }
+
+        populateAggregatesView();
     }
 
     public static String timeFormat(int timeInMilliSeconds){
@@ -243,12 +252,11 @@ public class UserInfo extends AppCompatActivity {
     public void updateDetailsUI(){
         //Log.d(logId, "updateDetailsUI called");
         if(AppState.state.workout != null) {
+            // we call getWorkoutDetails in order to update agrregets of current workout
             AlphaFtinessModel.WorkoutDetails details = AlphaFtinessModel.model.getWorkoutDetails(AppState.state.workout.getId());
-            averageDistance.setText(distanceFormat((details.distance+model.profile.avgDistance)/2));
-            averageTime.setText(timeFormatAvg(details.duration));
-            //averageCalBurned.setText();
-            allDistance.setText(distanceFormat(details.distance+model.profile.totalDistance));
-            allTime.setText(timeFormatAll(details.duration));
+            // update aggregate UI, it will include recalculation
+            populateAggregatesView();
+
         }
     }
     public void startUserInfoUpdate(){

@@ -165,12 +165,12 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
             path = mMap.addPolyline(pathOptions);
 
             String durationText = formatDuration(details.duration);
-            String distanceText = distanceFormat(details.distance);
+            String distanceText = formatDistance(details.distance);
             durationAmountText.setText(durationText);
             distanceAmountText.setText(distanceText);
         }
     }
-    public static String distanceFormat(double number) {
+    public static String formatDistance(double number) {
         DecimalFormat df = new DecimalFormat("0.000");
         return df.format(number).replaceAll("\\.000$", "");
     }
