@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -102,8 +103,23 @@ public class AlphaFtinessModel {
 
             } while (cursor.moveToNext());
         }
+        float[] results = new float[1];
+        float distance = 0;
+        WorkoutSample prev = null;
+        for (WorkoutSample sample: wd.basicdata){
+            if(prev != null){
+                Location.distanceBetween(prev.coordinate.latitude, prev.coordinate.longitude,
+                            sample.coordinate.latitude, sample.coordinate.longitude,
+                            results);
+                distance = distance + results[0];
+            }
+            prev = sample;
+        }
+        wd.distance = distance/1000.0;
+        wd.duration = wd.basicdata.get(wd.basicdata.size()-1).time - wd.basicdata.get(0).time;
         return wd;
     }
+
 
     public static class WorkoutSample{
         LatLng coordinate;
@@ -121,6 +137,7 @@ public class AlphaFtinessModel {
 
         public ArrayList<WorkoutSample> basicdata;
         public double distance;
+        public long duration;
         public double minSpeed;
         public double maxSpeed;
         public double speed;
@@ -131,6 +148,7 @@ public class AlphaFtinessModel {
             minSpeed = 0;
             maxSpeed = 0;
             speed = 0;
+            duration = 0;
         }
     }
 }

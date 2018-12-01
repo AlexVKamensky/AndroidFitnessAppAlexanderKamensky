@@ -148,6 +148,35 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
                 //Log.d(logId, "The latitude is " + sample.coordinate.latitude + " the longitude is " + sample.coordinate.longitude);
             }
             path = mMap.addPolyline(pathOptions);
+
+            String durationText = formatDuration(details.duration);
+            String distanceText = String.format("%.5g", details.distance);;
+            durationAmountText.setText(durationText);
+            distanceAmountText.setText(distanceText);
         }
     }
+
+    public String formatDuration(long duration){
+        String ret = "";
+        long seconds = duration/1000;
+        long minutes = seconds/60;
+        seconds = seconds%60;
+        long hours = minutes/60;
+        minutes = minutes%60;
+        if(seconds < 10){
+            ret = ":0" +seconds+ret;
+        }
+        else{
+            ret =":"+seconds+ret;
+        }
+        if(minutes <10){
+            ret = ":0"+minutes+ret;
+        }
+        else {
+            ret = ":"+minutes+ret;
+        }
+        ret = hours + ret;
+        return ret;
+    }
+
 }
