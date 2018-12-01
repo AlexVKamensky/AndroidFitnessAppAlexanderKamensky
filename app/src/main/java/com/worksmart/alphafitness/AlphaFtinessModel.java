@@ -178,7 +178,8 @@ public class AlphaFtinessModel {
         }
         wd.distance = distance/1000.0;
         wd.duration = wd.basicdata.get(wd.basicdata.size()-1).time - wd.basicdata.get(0).time;
-        //Log.d(logId, "Speed is " + wd.speed + " Max Speed is " + wd.maxSpeed + " Min Speed is " + wd.minSpeed);
+        wd.avgSpeed = distance/(wd.duration/1000.0);
+        //Log.d(logId, "Speed is " + wd.speed + " Max Speed is " + wd.maxSpeed + " Min Speed is " + wd.minSpeed + " Average Speed is " + wd.avgSpeed);
         Integer calories =  getCaloriesFromSteps(steps);
         AppState.state.workout.setStartTime(wd.basicdata.get(0).time);
         AppState.state.workout.setDistance(wd.distance);
@@ -239,6 +240,7 @@ public class AlphaFtinessModel {
         public double minSpeed;
         public double maxSpeed;
         public double speed;
+        public double avgSpeed;
 
         public WorkoutDetails(){
             basicdata = new ArrayList<WorkoutSample>();
@@ -246,6 +248,7 @@ public class AlphaFtinessModel {
             minSpeed = 0;
             maxSpeed = 0;
             speed = 0;
+            avgSpeed = 0;
             duration = 0;
         }
     }
