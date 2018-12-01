@@ -13,6 +13,10 @@
 -- **Email**: alexander.kamensky@sjsu.edu
 -- **Student ID**: 009779614
 
+- **Name**: Praneet Singh
+-- **Email**: praneet.singh@sjsu.edu
+-- **Student ID**: 010348897
+
 - **Name**: John Doe
 -- **Email**: john.doe@sjsu.edu
 -- **Student ID**: 12345678
