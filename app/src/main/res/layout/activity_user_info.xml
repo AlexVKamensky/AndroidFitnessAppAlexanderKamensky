@@ -21,6 +21,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <LinearLayout android:focusable="true"
+        android:focusableInTouchMode="true" android:layout_width="0px"
+        android:layout_height="0px" />
     <include
         layout="@layout/content_user_info"
         android:layout_width="match_parent"
@@ -68,9 +71,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="109dp"
         android:layout_toEndOf="@+id/genderTag" />
-    <LinearLayout android:focusable="true"
-        android:focusableInTouchMode="true" android:layout_width="0px"
-        android:layout_height="0px" />
+
     <TextView
         android:id="@+id/userWeightTag"
         android:layout_width="wrap_content"
@@ -89,7 +90,6 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="141dp"
         android:layout_toEndOf="@+id/userWeightTag"
-        android:autoText="false"
         android:ems="10"
         android:focusableInTouchMode="true"
         android:hint="weight(lb)"

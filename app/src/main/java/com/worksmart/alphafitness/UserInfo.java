@@ -4,14 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -25,15 +22,15 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-//import com.google.gson.Gson;
-
-import org.w3c.dom.Text;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class UserInfo extends AppCompatActivity {
     final static String logId = "UserInfo";
+    private final Integer uiUpdateIntervalMS = 1000;
 
+    public Handler handlerUserInfo = null;
+    public static Runnable runnableUserInfo = null;
     TextView averageDistance, averageTime, averageWorkouts,
             averageCalBurned, allTime, allDistance, allWorkouts, allCalBurned;
     Spinner genderSpinner;
@@ -84,6 +81,7 @@ public class UserInfo extends AppCompatActivity {
                 model.profile.setGender(genderSpinner.getSelectedItem().toString());
                 model.profile.setName(userName.getText().toString());
                 model.profile.setWeight(Integer.parseInt(userWeight.getText().toString()));
+                model.profile.setImage(profilePic.getDrawable());
                 Log.d(logId, "The users name is " + model.profile.getName());
                 Log.d(logId, "The users gender is " + model.profile.getGender());
                 Log.d(logId, "The users weight is " + model.profile.getWeight());
@@ -91,6 +89,7 @@ public class UserInfo extends AppCompatActivity {
             }
 
         });
+
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,9 +115,9 @@ public class UserInfo extends AppCompatActivity {
                 }
             }
         });
-
-        //populateView();
+        startUserInfoUpdate();
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -158,7 +157,6 @@ public class UserInfo extends AppCompatActivity {
             profilePic.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
         }else{
-            System.out.println("User Cancelled");
         }
     }
     public void populateView(){
@@ -166,19 +164,47 @@ public class UserInfo extends AppCompatActivity {
         userWeight.setText(String.valueOf(user.getWeight()));
         genderSpinner.setSelection(this.genderStringToSpinnerSelection(user.getGender()));
         model.profile.calculateValues();
-        averageDistance.setText(String.valueOf(model.profile.avgDistance)+ " km");
-        averageCalBurned.setText(String.valueOf(model.profile.avgCalories) + " Cal");
-        averageWorkouts.setText(String.valueOf(model.profile.weekWorkoutCount)+" times");
-        averageTime.setText(String.valueOf(model.profile.avgTime));
-        allTime.setText(String.valueOf(model.profile.totalTime));
-        allDistance.setText(String.valueOf(model.profile.totalDistance)+ " km");
-        allWorkouts.setText(String.valueOf(model.profile.totalWorkoutCount)+" times");
-        allCalBurned.setText(String.valueOf(model.profile.totalCalories)+ " Cal");
+        String avDis = distanceFormat(model.profile.avgDistance)+ " km";
+        averageDistance.setText(avDis);
+        String avCal = String.valueOf(model.profile.avgCalories) + " Cal";
+        averageCalBurned.setText(avCal);
+        String avW = String.valueOf(model.profile.weekWorkoutCount)+" times";
+        averageWorkouts.setText(avW);
 
-        //profilePic.setImageDrawable(user.getImage());
+        averageTime.setText(timeFormat(model.profile.avgTime));
 
+        allTime.setText(timeFormat(model.profile.totalTime));
+        String tDis = distanceFormat(model.profile.totalDistance)+ " km";
+        allDistance.setText(tDis);
+        String tW = String.valueOf(model.profile.totalWorkoutCount)+" times";
+        allWorkouts.setText(tW);
+        String tCal = String.valueOf(model.profile.totalCalories)+ " Cal";
+        allCalBurned.setText(tCal);
+        if(user.getImage() != null){
+            profilePic.setImageDrawable(user.getImage());
+        }
     }
 
+    public static String timeFormat(int timeInMilliSeconds){
+        long seconds = timeInMilliSeconds / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        String time = days + " day " + hours % 24 + " hr " + minutes % 60 + " min " + seconds % 60 + " sec";
+        return time;
+    }
+    public static String distanceFormat(double number) {
+        DecimalFormat df = new DecimalFormat("0.000");
+        return df.format(number).replaceAll("\\.000$", "");
+    }
+    public boolean startUpdateDetailsUI(){
+        try{
+            AlphaFtinessModel.WorkoutDetails details = AlphaFtinessModel.model.getWorkoutDetails(AppState.state.workout.getId());
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
     private int genderStringToSpinnerSelection(String gender){
         int ret = 3;
 
@@ -192,6 +218,55 @@ public class UserInfo extends AppCompatActivity {
             ret = 2;
         }
         return ret;
+    }
+    public String timeFormatAvg(long timeInMilliSeconds){
+        timeInMilliSeconds = (model.profile.avgTime+timeInMilliSeconds)/2;
+
+        long seconds = timeInMilliSeconds / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        String time = days + " day " + hours % 24 + " hr " + minutes % 60 + " min " + seconds % 60 + " sec";
+        return time;
+    }
+    public String timeFormatAll(long timeInMilliSeconds){
+        timeInMilliSeconds += model.profile.totalTime;
+        long seconds = timeInMilliSeconds / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        String time = days + " day " + hours % 24 + " hr " + minutes % 60 + " min " + seconds % 60 + " sec";
+        return time;
+    }
+    public void updateDetailsUI(){
+        //Log.d(logId, "updateDetailsUI called");
+        if(AppState.state.workout != null) {
+            AlphaFtinessModel.WorkoutDetails details = AlphaFtinessModel.model.getWorkoutDetails(AppState.state.workout.getId());
+            averageDistance.setText(distanceFormat((details.distance+model.profile.avgDistance)/2));
+            averageTime.setText(timeFormatAvg(details.duration));
+            //averageCalBurned.setText();
+            allDistance.setText(distanceFormat(details.distance+model.profile.totalDistance));
+            allTime.setText(timeFormatAll(details.duration));
+        }
+    }
+    public void startUserInfoUpdate(){
+        handlerUserInfo = new Handler();
+        if(startUpdateDetailsUI()) {
+            runnableUserInfo = new Runnable() {
+                public void run() {
+                    updateDetailsUI();
+                    if (AppState.state.workout != null) {
+                        handlerUserInfo.postDelayed(runnableUserInfo, uiUpdateIntervalMS);
+                    }
+                }
+            };
+
+            updateDetailsUI();
+            handlerUserInfo.postDelayed(runnableUserInfo, uiUpdateIntervalMS);
+        }
+
     }
 
 }
