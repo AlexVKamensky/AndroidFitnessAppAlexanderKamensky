@@ -6,14 +6,12 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class UserProfile {
-    enum Gender{
-        MALE, FEMALE, OTHER, UNSPECIFIED;
-    }
+
 
     // persistent state should be saved/read into/from database
     private String name;
     private Drawable image;
-    private Gender gender;
+    private String gender;
     private Integer weight;
     public ArrayList<Workout> workouts;
 
@@ -37,8 +35,8 @@ public class UserProfile {
 
     public UserProfile(){
         this.name = "";
-        this.gender = Gender.UNSPECIFIED;
-        this.weight = 62;
+        this.gender = "";
+        this.weight = 0;
         this.workouts = new ArrayList<Workout>();
     }
 
@@ -56,23 +54,10 @@ public class UserProfile {
         this.name = name;
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
+
 
     public void setGender(String gender) {
-        if(gender == "MALE"){
-            this.gender = Gender.MALE;
-        }
-        else if(gender == "FEMALE"){
-            this.gender = Gender.FEMALE;
-        }
-        else if(gender == "OTHER"){
-            this.gender = Gender.OTHER;
-        }
-        else{
-            this.gender = Gender.UNSPECIFIED;
-        }
+        this.gender = gender;
     }
 
     public void setWeight(Integer weight) {
@@ -87,7 +72,7 @@ public class UserProfile {
         return name;
     }
 
-    public Gender getGender() {
+    public String getGender() {
         return gender;
     }
 

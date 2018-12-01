@@ -34,8 +34,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
         startService(new Intent(this, WorkoutService.class));
         Log.d("Main", "Calling on create");
+        AlphaFtinessModel.model = new AlphaFtinessModel(this);
         //ContentProvider dataProvider = getContentResolver();
-        ModelTest.testModel(this);
+        //ModelTest.testModel(this);
 
     }
 

@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 
 public class AlphaFtinessModel {
+    final private String logId = "AlphaFtinessModel";
     public UserProfile profile;
 
     public static AlphaFtinessModel model;
@@ -23,8 +24,11 @@ public class AlphaFtinessModel {
 
 
     public AlphaFtinessModel(Activity context){
-        this.profile = new UserProfile();
         this.contentResolver = context.getContentResolver();
+        this.getProfile();
+        Log.d(logId, "The users name is " + profile.getName());
+        Log.d(logId, "The users gender is " + profile.getGender());
+        Log.d(logId, "The users weight is " + profile.getWeight());
         model = this;
     }
 
@@ -42,11 +46,12 @@ public class AlphaFtinessModel {
         Uri uri = this.contentResolver.insert(workouts, values);
     }
 
+
     public void addUserProfile(){
         ContentValues values = new ContentValues();
         values.put(DataProvider.KEY_USERPROFILE_ID, 1);
         values.put(DataProvider.KEY_USERPROFILE_NAME, this.profile.getName());
-        values.put(DataProvider.KEY_USERPROFILE_GENDER, this.profile.getGender().toString());
+        values.put(DataProvider.KEY_USERPROFILE_GENDER, this.profile.getGender());
         values.put(DataProvider.KEY_USERPROFILE_WEIGHT, this.profile.getWeight());
 
         Uri uprofile = Uri.parse(DataProvider.USERPROFILE_URL);
@@ -76,16 +81,34 @@ public class AlphaFtinessModel {
     }
 
     public UserProfile getProfile(){
+        this.profile = new UserProfile();
         Uri uprofile = Uri.parse(DataProvider.USERPROFILE_URL);
         Cursor cursor = this.contentResolver.query(uprofile, null, null, null, null);
         if (cursor.moveToFirst()) {
-            cursor.moveToFirst();
-            this.profile.setName(cursor.getString(0));
-            this.profile.setGender(cursor.getString(1));
-            this.profile.setWeight(cursor.getInt(2));
+            //cursor.moveToFirst();
+            this.profile.setName(cursor.getString(1));
+            this.profile.setGender(cursor.getString(2));
+            this.profile.setWeight(cursor.getInt(3));
+        }else {
+            // first time no user profile in database create generic one
+            profile.setName("Enter your Name");
+            profile.setGender("Other");
+            profile.setWeight(0);
+            this.addUserProfile();
         }
         cursor.close();
         return this.profile;
+    }
+
+    public void updateProfile(){
+        Uri uprofile = Uri.parse(DataProvider.USERPROFILE_URL);
+        ContentValues values = new ContentValues();
+        values.put(DataProvider.KEY_USERPROFILE_ID, 1);
+        values.put(DataProvider.KEY_USERPROFILE_NAME, this.profile.getName());
+        values.put(DataProvider.KEY_USERPROFILE_GENDER, this.profile.getGender());
+        values.put(DataProvider.KEY_USERPROFILE_WEIGHT, this.profile.getWeight());
+        String mSelectionClause = DataProvider.KEY_USERPROFILE_ID + " = 1";
+        this.contentResolver.update(uprofile, values, mSelectionClause, null);
     }
 
     public WorkoutDetails getWorkoutDetails(Integer id){

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,6 +32,8 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 public class UserInfo extends AppCompatActivity {
+    final static String logId = "UserInfo";
+
     TextView averageDistance, averageTime, averageWorkouts,
             averageCalBurned, allTime, allDistance, allWorkouts, allCalBurned;
     Spinner genderSpinner;
@@ -41,6 +45,7 @@ public class UserInfo extends AppCompatActivity {
         add("Male");
         add("Female");
         add("Other");
+        add("Unspecified");
     }};
     ArrayAdapter<String> genderAdapter;
     AlphaFtinessModel model;
@@ -49,7 +54,8 @@ public class UserInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         model = AlphaFtinessModel.model;
-        addUser();
+        user = model.profile;
+
         setContentView(R.layout.activity_user_info);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,6 +72,7 @@ public class UserInfo extends AppCompatActivity {
         allDistance = findViewById(R.id.allDistance);
         allWorkouts = findViewById(R.id.allWorkouts);
         allCalBurned = findViewById(R.id.allCalBurned);
+
         genderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item , genders);
         genderSpinner.setAdapter(genderAdapter);
         profilePic = findViewById(R.id.profilePicture);
@@ -77,7 +84,10 @@ public class UserInfo extends AppCompatActivity {
                 model.profile.setGender(genderSpinner.getSelectedItem().toString());
                 model.profile.setName(userName.getText().toString());
                 model.profile.setWeight(Integer.parseInt(userWeight.getText().toString()));
-                //model.updateProfile();
+                Log.d(logId, "The users name is " + model.profile.getName());
+                Log.d(logId, "The users gender is " + model.profile.getGender());
+                Log.d(logId, "The users weight is " + model.profile.getWeight());
+                model.updateProfile();
             }
 
         });
@@ -154,7 +164,7 @@ public class UserInfo extends AppCompatActivity {
     public void populateView(){
         userName.setText(user.getName());
         userWeight.setText(String.valueOf(user.getWeight()));
-        genderSpinner.setPrompt(user.getGender().toString());
+        genderSpinner.setSelection(this.genderStringToSpinnerSelection(user.getGender()));
        // model.profile.calculateValues(0);
         averageDistance.setText(String.valueOf(model.profile.avgDistance)+ " miles");
         averageCalBurned.setText(String.valueOf(model.profile.avgCalories) + " Cal");
@@ -168,10 +178,20 @@ public class UserInfo extends AppCompatActivity {
         //profilePic.setImageDrawable(user.getImage());
 
     }
-    public void addUser(){
-        UserProfile p = new UserProfile();
-        model.getProfile();
-        user = model.getProfile();
 
+    private int genderStringToSpinnerSelection(String gender){
+        int ret = 3;
+
+        if(gender.equals("Male")){
+            ret=0;
+        }
+        else if(gender.equals("Female")){
+            ret = 1;
+        }
+        else if(gender.equals("Other")){
+            ret = 2;
+        }
+        return ret;
     }
+
 }

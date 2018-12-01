@@ -16,7 +16,7 @@ public class ModelTest {
             model.profile = new UserProfile();
             model.profile = new UserProfile();
             model.profile.setName("John Smith");
-            model.profile.setGender(UserProfile.Gender.MALE);
+            model.profile.setGender("Male");
             model.addUserProfile();
         }
         Log.d("ModelTest", "The users name is " + model.profile.getName());
