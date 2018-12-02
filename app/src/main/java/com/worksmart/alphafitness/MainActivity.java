@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private final Integer uiUpdateIntervalMS = 1000;
 
     RecordWorkoutFragment recordWorkoutFragment;
+    WorkoutDetailsFragment workoutDetailsFragment;
 
     public Handler handler = null;
     public static Runnable runnable = null;
@@ -47,7 +48,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         recordWorkoutFragment = (RecordWorkoutFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.RecordWorkoutFragment);
-
+        workoutDetailsFragment = (WorkoutDetailsFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.WorkoutDetailsFragment);
+        if(workoutDetailsFragment != null &&  workoutDetailsFragment.isInLayout() && AppState.state.workout != null){
+            startWorkoutDetailsUiUpdate();
+        }
     }
 
     @Override
@@ -117,6 +122,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         };
 
         recordWorkoutFragment.updateDetailsUI();
+        handler.postDelayed(runnable, uiUpdateIntervalMS);
+    }
+
+    public void startWorkoutDetailsUiUpdate(){
+        handler = new Handler();
+        runnable = new Runnable() {
+            public void run() {
+                workoutDetailsFragment.updateDetailsUI();
+                if (AppState.state.workout != null) {
+                    handler.postDelayed(runnable, uiUpdateIntervalMS);
+                }
+            }
+        };
+
+        workoutDetailsFragment.updateDetailsUI();
         handler.postDelayed(runnable, uiUpdateIntervalMS);
     }
 

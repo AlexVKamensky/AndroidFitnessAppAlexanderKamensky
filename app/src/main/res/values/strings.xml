@@ -12,6 +12,13 @@
     <string name="record_workout_duration_title_text">DURATION</string>
     <string name="record_workout_duration_amount_text">0</string>
     <string name="record_workout_duration_unit_text">Minutes</string>
+    <string name="workout_detail_label_text">Workout Details</string>
+    <string name="workout_detail_instant_speed_label_text">Speed</string>
+    <string name="workout_detail_average_speed_label_text">Average</string>
+    <string name="workout_detail_max_speed_label_text">Max</string>
+    <string name="workout_detail_min_speed_label_text">Min</string>
+    <string name="workout_detail_speed_number_text">0</string>
+    <string name="workout_detail_speed_unit_text">m/s</string>
     <string name="title_activity_user_info">UserInfo</string>
     <string name="title_activity_maps">Map</string>
 </resources>
