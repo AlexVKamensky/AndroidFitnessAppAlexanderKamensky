@@ -8,6 +8,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
+import com.github.mikephil.charting.data.Entry;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -16,6 +17,11 @@ public class AlphaFtinessModel {
     final private String logId = "AlphaFtinessModel";
     final private Integer speedSampleSize = 5;
     final private Boolean useStepsForDistance = true;
+
+    //demo value is 5 seconds
+    final private Integer graphTimeInterval = 5*1000;
+    //spe value is 5 minutes
+    //final private Integer graphTimeInterval = 300*1000;
 
     public UserProfile profile;
 
@@ -188,6 +194,45 @@ public class AlphaFtinessModel {
         return wd;
     }
 
+
+    public WorkoutGraphData getGraphData(WorkoutDetails details){
+        WorkoutGraphData ret = new WorkoutGraphData();
+        long startTime = details.basicdata.get(0).time;
+        long intervals = details.duration/ graphTimeInterval;
+        ret.xAxis = new String[(int) intervals];
+        for(int i = 0; i< intervals; i++){
+            ret.xAxis[i] = "" + (graphTimeInterval*i)/1000;
+        }
+
+        double stepCount = 0;
+        double calorieCount = 0;
+        int currentInterval = 0;
+        long latestTime = (startTime + graphTimeInterval*(currentInterval+1)) -1;
+
+        for (WorkoutSample sample: details.basicdata){
+            if(sample.time <= latestTime){
+                stepCount = stepCount + sample.steps;
+            }
+            else{
+                ret.stepsDataSet.add(new Entry( (float) stepCount, currentInterval));
+                calorieCount = stepCount*profile.getCaloriesPerThousandSteps();
+                calorieCount = calorieCount/1000.0;
+                ret.caloriesDataSet.add(new Entry((float) calorieCount, currentInterval));
+                currentInterval = currentInterval + 1;
+                latestTime = (startTime + graphTimeInterval*(currentInterval+1)) -1;
+                if(stepCount > ret.maxSteps){
+                    ret.maxSteps = stepCount;
+                }
+                if(calorieCount > ret.maxCalories){
+                    ret.maxCalories = calorieCount;
+                }
+                stepCount = sample.steps;
+            }
+        }
+
+        return ret;
+    }
+
     public Integer getCaloriesFromSteps(double steps){
         return new Integer((int) (steps*profile.getCaloriesPerThousandSteps()/1000.0));
     }
@@ -232,6 +277,24 @@ public class AlphaFtinessModel {
         }
     }
 
+    public class WorkoutGraphData{
+        ArrayList<Entry> stepsDataSet;
+        ArrayList<Entry> caloriesDataSet;
+
+        double maxSteps;
+        double maxCalories;
+
+        String[] xAxis;
+
+        public WorkoutGraphData(){
+            stepsDataSet = new ArrayList<Entry>();
+            caloriesDataSet = new ArrayList<Entry>();
+            xAxis = new String[graphTimeInterval];
+            maxSteps = 0;
+            maxCalories = 0;
+        }
+    }
+
     public class WorkoutDetails{
 
         public ArrayList<WorkoutSample> basicdata;
@@ -241,6 +304,7 @@ public class AlphaFtinessModel {
         public double maxSpeed;
         public double speed;
         public double avgSpeed;
+
 
         public WorkoutDetails(){
             basicdata = new ArrayList<WorkoutSample>();

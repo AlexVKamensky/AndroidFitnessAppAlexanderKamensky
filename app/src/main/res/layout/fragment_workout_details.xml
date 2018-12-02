@@ -9,7 +9,7 @@
     <LinearLayout
     android:id="@+id/dataLayout"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="60dp"
     android:orientation="horizontal"
     android:weightSum="1"
     android:layout_gravity="center">
@@ -147,5 +147,10 @@
 
     </LinearLayout>
 
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart"
+        android:layout_below="@+id/dataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
