@@ -11,12 +11,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -24,8 +26,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.text.DecimalFormat;
 
@@ -38,11 +42,15 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
     TextView durationAmountText;
     public static final int GET_LOCATION = 1;
 
+    public static final int mapPadding = 150;
+
     static final String logId = "RecordWorkout";
     AlphaFtinessModel model;
     Button workoutButton;
 
     Polyline path;
+
+    BoundryKeeper boundryKeeper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,6 +113,10 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
             LatLng startLocation = getCurrentLocation();
             mMap.moveCamera(CameraUpdateFactory.newLatLng(startLocation));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startLocation, 18));
+
+
+            //mMap.setPadding(mapPadding, mapPadding , mapPadding ,mapPadding);
+
             //zoom = mMap.getCameraPosition().zoom;
             //Log.d(logId, "Zoom is " + zoom);
 
@@ -153,16 +165,39 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
             pathOptions.width(5);
             pathOptions.color(Color.RED);
             LatLng prev = null;
+            BoundryKeeper boundryKeeper;
+            if(details.basicdata.size() > 0) {
+                VisibleRegion region = mMap.getProjection().getVisibleRegion();
+                LatLngBounds bounds = region.latLngBounds;
+                LatLng northeast = bounds.northeast;
+                LatLng southwest = bounds.southwest;
 
-            for (int i = 0; i < details.basicdata.size(); i++) {
-                AlphaFtinessModel.WorkoutSample sample = details.basicdata.get(i);
-                if (prev != null) {
-                    pathOptions.add(prev, sample.coordinate);
+                boundryKeeper = new BoundryKeeper(details.basicdata.get(0).coordinate,
+                        details.basicdata.get(0).coordinate);
+
+                for (int i = 0; i < details.basicdata.size(); i++) {
+                    AlphaFtinessModel.WorkoutSample sample = details.basicdata.get(i);
+                    if (prev != null) {
+                        boundryKeeper.updateValues(prev.latitude, prev.longitude);
+                        pathOptions.add(prev, sample.coordinate);
+                    }
+                    prev = sample.coordinate;
+                    //Log.d(logId, "The latitude is " + sample.coordinate.latitude + " the longitude is " + sample.coordinate.longitude);
                 }
-                prev = sample.coordinate;
-                //Log.d(logId, "The latitude is " + sample.coordinate.latitude + " the longitude is " + sample.coordinate.longitude);
+                if(boundryKeeper.compareBoundries(northeast, southwest) && mMap != null) {
+                    // only change camera position if we left visible boundries
+                    try {
+                        mMap.moveCamera(boundryKeeper.getBoundries());
+                    }
+                    catch (Exception exception){
+
+                    }
+                }
+
+                path = mMap.addPolyline(pathOptions);
+
+
             }
-            path = mMap.addPolyline(pathOptions);
 
             String durationText = formatDuration(details.duration);
             String distanceText = formatDistance(details.distance);
@@ -195,6 +230,68 @@ public class RecordWorkoutFragment extends Fragment implements OnMapReadyCallbac
         }
         ret = hours + ret;
         return ret;
+    }
+
+
+    public class BoundryKeeper{
+        double maxLatitude;
+        double maxLongitude;
+        double minLatitude;
+        double minLongitude;
+
+
+
+        public BoundryKeeper(LatLng northeast, LatLng southwest){
+            maxLatitude = northeast.latitude;
+            maxLongitude = northeast.longitude;
+            minLatitude = southwest.latitude;
+            minLongitude = southwest.longitude;
+
+        }
+
+        public void updateValues(double newLat, double newLong){
+            if(newLat > maxLatitude){
+                maxLatitude = newLat;
+            }
+            if(newLat < minLatitude){
+                minLatitude = newLat;
+            }
+            if(newLong > maxLongitude){
+                maxLongitude = newLong;
+            }
+            if(newLong < minLongitude){
+                minLongitude = newLong;
+            }
+        }
+
+        public CameraUpdate getBoundries(){
+            LatLng max = new LatLng(maxLatitude, maxLongitude);
+            LatLng min = new LatLng(minLatitude, minLongitude);
+            LatLngBounds bounds =  new LatLngBounds(min, max);
+
+            return CameraUpdateFactory. newLatLngBounds(bounds, mapPadding);
+        }
+
+        public boolean compareBoundries(LatLng northeast, LatLng southwest){
+            boolean ret = false;
+            if(maxLatitude > northeast.latitude){
+                //Log.d(logId, "maxLatitude " + maxLatitude +" northeast lat " + northeast.latitude);
+                ret = true;
+            }
+            if(maxLongitude > northeast.longitude){
+                //Log.d(logId, "maxLongitude " + maxLongitude + " northeast long " + northeast.longitude);
+                ret = true;
+            }
+            if(minLatitude < southwest.latitude){
+                //Log.d(logId, "minLatitude " + minLatitude + " southeast lat " + southwest.latitude);
+                ret = true;
+            }
+            if(minLongitude < southwest.longitude){
+                //Log.d(logId, "minLongitude " + minLongitude + " southeast long " + southwest.longitude);
+                ret = true;
+            }
+            return ret;
+        }
     }
 
 }
