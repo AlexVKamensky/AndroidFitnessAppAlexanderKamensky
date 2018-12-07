@@ -17,9 +17,9 @@
 -- **Email**: praneet.singh@sjsu.edu
 -- **Student ID**: 010348897
 
-- **Name**: John Doe
--- **Email**: john.doe@sjsu.edu
--- **Student ID**: 12345678
+- **Name**: Shariq Shah
+-- **Email**: shariq.shah@sjsu.edu
+-- **Student ID**: 007893418
 
 ## Assignment Information
 - **Assignment**: Programming Assignment #2
